@@ -21,7 +21,6 @@ tick_data_raw <- fread("https://contentiobatch.blob.core.windows.net/zse/transak
 # "In the following, we assume the columns to be (re)named as in our sample datasets shown above."
 # The classical approach for cleaning trade and quote data is outlined in Barndorff-Nielsenet al. (2009)
 tick_data_raw <- as.data.table(tick_data_raw)
-colnames(tick_data_raw)
 setnames(tick_data_raw, 
          c("VrijednosnicaID", "Datum", "Kolicina", "Cijena"), 
          c("SYMBOL", "DT", "SIZE", "PRICE"))
@@ -35,9 +34,15 @@ dim(tick_data_raw)
 ```
 
 ```{r}
-# pre-clean raw tick data
+# change column types and remove unnecessary columns
 tick_precleaned <- copy(tick_data_raw)
-str(tick_data_raw)
+tick_precleaned[, `:=`(ISIN = NULL, Broj = NULL)]
+tick_precleaned[, SIZE := as.integer(SIZE)]
+tick_precleaned[, PRICE:= as.numeric(PRICE)]
+str(tick_precleaned)
+
+# pre-clean raw tick data
+
 ```
 
 ## Literatura
