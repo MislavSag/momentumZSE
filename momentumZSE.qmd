@@ -1,0 +1,48 @@
+---
+title: "momentumZSE"
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+```{r}
+library(AzureStor)
+library(data.table)
+library(highfrequency)
+```
+
+```{r}
+# import data
+vrijednosnice <- fread("https://contentiobatch.blob.core.windows.net/zse/vrijednosnice.csv")
+tick_data_raw <- fread("https://contentiobatch.blob.core.windows.net/zse/transakcije.csv")
+
+# change tick_data_raw object to be suitable for highfrequency package.
+# "In the following, we assume the columns to be (re)named as in our sample datasets shown above."
+# The classical approach for cleaning trade and quote data is outlined in Barndorff-Nielsenet al. (2009)
+tick_data_raw <- as.data.table(tick_data_raw)
+colnames(tick_data_raw)
+setnames(tick_data_raw, 
+         c("VrijednosnicaID", "Datum", "Kolicina", "Cijena"), 
+         c("SYMBOL", "DT", "SIZE", "PRICE"))
+tick_data_raw[, COND := "FTI"] # https://www.nyse.com/publicdocs/nyse/data/Daily_TAQ_Client_Spec_v3.3b.pdf
+tick_data_raw[, EX := "ZSE"]
+tick_data_raw[, CORR := 0]
+
+# summary
+head(tick_data_raw)
+dim(tick_data_raw)
+```
+
+```{r}
+# pre-clean raw tick data
+tick_precleaned <- copy(tick_data_raw)
+str(tick_data_raw)
+```
+
+## Literatura
+
+1.  https://deliverypdf.ssrn.com/delivery.php?ID=617022022121092094094026008069094028016053089047061003065024086088084103029008071066100029017023042116110120107127088119116086012054046028049085089068117096087120101062069008102125064102106117116104088069102085072103116003007079015103124086072126020001&EXT=pdf&INDEX=TRUE
+2.  Barndorff-Nielsen
+    et al. (2009).
+3.  
